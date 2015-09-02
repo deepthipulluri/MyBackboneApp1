@@ -35,6 +35,8 @@ module.exports = function(fileName) {
 			});
 		});
 
+
+
 	router.route("/" + collectionName + "/:id")
 		.get(function(req, res) {
 			DataModel.findById(req.params.id,

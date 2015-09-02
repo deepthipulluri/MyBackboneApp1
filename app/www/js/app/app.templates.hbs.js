@@ -73,7 +73,7 @@ this["handlebars"]["viewFiles"] = Handlebars.template({"1":function(depth0,helpe
 },"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
     var stack1;
 
-  return "<form><input type=\"form\" id=\"input-file\"><button type=\"button\" data-update-file>upload file</button><div>&nbsp;</div><div>&nbsp;</div><table><thead></thead>"
+  return "<form><input type=\"file\" id=\"upload-file\"><button type=\"button\" data-update-file>upload file</button><table><thead></thead>"
     + ((stack1 = helpers.each.call(depth0,depth0,{"name":"each","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
     + "</table></form>";
 },"useData":true});

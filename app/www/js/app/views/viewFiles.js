@@ -29,7 +29,7 @@
 			},
 
 			uploadFile: function(e) {
-				this.trigger("upload-file");
+				this.trigger("upload-file", this.collection);
 			},
 
 

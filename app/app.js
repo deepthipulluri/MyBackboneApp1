@@ -102,11 +102,22 @@ module.exports = function(config) {
 		next();
 	});
 
-	app.use("/api", multer({ dest: contentFolders.uploadsFolder }).single("upload-file"));
+	app.use("/api", multer({ dest: contentFolders.uploadsFolder}).single("upload-file"));
 
-	app.use("/api/upload", function(req, res) {
+	app.post("/api/upload", function(req, res) {
+		console.log(req.file);
 		res.json({
-			message: "upload successful!"
+			message: "upload successful!",
+			filename: req.file.filename,
+			size: req.file.size,
+			description: req.file.filename,
+			uploadDate: new Date()
+		});
+	});
+
+	app.delete("/api/upload/:id", function(req, res) {
+		res.json({
+			message: "successful!",
 		});
 	});
 

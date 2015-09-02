@@ -23,7 +23,7 @@ define(["underscore", "backbone", "app/collections/userFiles","app/models/userFi
 
 			function fetchFile(cb, fileId){
 				var files = new UserFileModel(fileId);
-				console.log(fileId);
+				console.log("file"+fileId);
 				files.fetch({
 					success: function(model,response,options){
 							console.log("here" ,response);
@@ -38,11 +38,13 @@ define(["underscore", "backbone", "app/collections/userFiles","app/models/userFi
 			});
 
 			controller.listenTo(router, "edit-file", function(fileId) {
-				console.log("edit File data");
 				fetchFile(controller.editFileData,fileId);
 			});
 
-
+			controller.listenTo(router, "upload-file", function(fileInput) {
+				console.log("fileInput");
+				controller.uploadFile(fileInput);
+			});
 
 
 			this.listFiles = function(collection) {
@@ -62,7 +64,12 @@ define(["underscore", "backbone", "app/collections/userFiles","app/models/userFi
 
 				controller.listenTo(currentView, "delete-file", function(fileId) {
 					fetchFile(this.deleteFileData,fileId);
-				});				
+				});			
+
+
+				controller.listenTo(currentView, "upload-file", function(collection) {
+					controller.uploadFile(collection);
+				});	
 
 				$("#app").append(currentView.render());
 				router.navigate("/files/");
@@ -108,16 +115,62 @@ define(["underscore", "backbone", "app/collections/userFiles","app/models/userFi
 
 			this.deleteFileData = function(File) {
 				var userFile = new UserFileModel(File);
-
-				userFile.save(null, {
+				console.dir(File);
+				
+				userFile.destroy({
 					success: function(model, response, options) {
-						router.trigger("list-files");
+						  var xhr = new XMLHttpRequest();
+			                xhr.addEventListener("readystatechange", function(){
+			                    if(xhr.readyState === 4 && xhr.status === 200){
+			                       router.trigger("list-files");
+			                    }    	
+			                });
+
+			                xhr.open("DELETE","/api/upload/" + userFile.name);
+			                xhr.send();
 					},
 					error: function(model, response, options) {
-						console.log("account not saved");
+						console.log("file not deleted");
 					}
 				});
+				
 			};
+
+			this.uploadFile = function(collection) {
+				
+				var fileInput= document.getElementById("upload-file");
+                var fd = new FormData();
+                for(var x=0; x< fileInput.files.length; x++){
+                    fd.append("upload-file", fileInput.files[x], fileInput.files[x].filename);
+
+                }
+                var xhr = new XMLHttpRequest();
+                xhr.addEventListener("readystatechange", function(){
+                    if(xhr.readyState === 4 && xhr.status === 200){
+                        var obj = jQuery.parseJSON(xhr.responseText);
+                        var userFile = new UserFileModel({
+                        	name: obj.filename,
+							sizeinBytes: obj.size,
+							uploaded: obj.uploadDate,
+							description: obj.description
+                        });
+                        userFile.save(null, {
+                        	success: function(model,response,options){
+                        		collection.push(userFile);
+                        		controller.listFiles(collection);
+                        	}
+                        })
+                    }
+                });
+
+                        //wire up on ready state change 
+
+                xhr.open("POST","/api/upload");
+                xhr.send(fd);
+
+				
+            }
+
 			this.start = function() {
 				console.log("start");
 				this.listFiles();
@@ -125,6 +178,5 @@ define(["underscore", "backbone", "app/collections/userFiles","app/models/userFi
 			};
 
 		};
-
 
 	});
